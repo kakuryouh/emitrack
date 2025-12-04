@@ -1,10 +1,12 @@
-﻿vehicle type,avarage emission
+﻿vehicle type,average emission
 Mobil (Bensin),130.4
 Mobil (Diesel),149.4
-Mobil (Elektrik),0
-Mobil (Hybrid),30.2
-Sepeda Motor,113.37
+Mobil (Listrik),65.2
+Mobil (Hybrid),104.3
+Sepeda Motor (Bensin),113.37
+Sepeda Motor (Listrik), 15
 Sepeda,0
+Jalan Kaki, 0
 Kereta Api,41
 Kereta Listrik,1.7
 Bus,113

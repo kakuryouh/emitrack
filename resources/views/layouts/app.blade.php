@@ -40,6 +40,10 @@
             color: #000;
         }
 
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+
         /* General Container */
         .container {
             max-width: 1000px;
@@ -73,6 +77,10 @@
             gap: 5px;
         }
 
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+
         /* Button */
         .btn {
             display: inline-block;
@@ -104,6 +112,10 @@
             width: 250px;
             height: 40px;
         }
+
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
 
         /* Homepage Sections */
         .banner {
@@ -158,6 +170,10 @@
             flex-direction: row-reverse;
         }
 
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+
         /* Calculate Form */
         .form-box {
             max-width: 450px;
@@ -192,6 +208,10 @@
             text-align: center;
         }
 
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+
         /* Result Page Styling */
         .container-result {
             width: 100%;
@@ -199,54 +219,195 @@
             padding: 0 1rem;
         }
 
+        /* New */
         .result-box {
-            background-color: #e6f9f0; /* Light green */
+            background-color: #e6f9f0;
             border-radius: 12px;
             padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            width: 100%;
+            max-width: 2000px;
             margin: 2rem auto;
-            text-align: center;
+            box-sizing: border-box;
         }
+
+        /* good */
         .result-box h1 {
             font-size: 1.8rem;
             font-weight: 600;
             color: #333;
             margin-top: 0;
         }
-        .result-box .emission-value {
+
+        /* New */
+        .map-container {
+            flex: 1;
+            aspect-ratio: 4/3;
+            min-width: 300px;
+            margin-right: 5rem;
+        }
+        
+        /* New */
+        #map {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 2px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* new */
+        .data-container {
+            flex: 1;
+            text-align: center;
+        }
+
+        /* new */
+        .data-container h1 {
+            margin-top: 0;
+            font-size: 1.8rem;
+            color: #333;
+        }
+
+        /* new */
+        .emission-value {
             font-size: 3rem;
             font-weight: bold;
             color: #2d8a64;
             margin: 1rem 0 2rem 0;
         }
+
+        /* new */
         .result-details {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            text-align: center;
             gap: 1.5rem;
-            max-width: 800px;
-            margin: 0 auto;
+            text-align: left;
+            margin-bottom: 2rem;
         }
-        .result-details div {
-            font-size: 1rem;
-        }
-        .result-details .label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
-        .result-details .value {
-            font-size: 1.1rem;
-            color: #555;
-        }
-        /* Grid layout for the bottom 4 items */
+
+        /* new */
         .result-bottom {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            text-align: center;
-            margin-top: 2rem;
             border-top: 1px solid #cce8dc;
             padding-top: 2rem;
         }
+        
+        /* new */
+        .label { font-weight: 600; color: #555; font-size: 0.9rem; }
+        .value { font-weight: 500; font-size: 1.1rem; color: #333; }
+
+        /* new */
+        .recommendation-section {
+            margin-top: 2rem;
+            border-top: 1px solid #cce8dc; /* Separator line */
+            padding-top: 2rem;
+        }
+
+        /* new */
+        .rec-message {
+            text-align: center;
+            /* "Centered in the middle justified" logic */
+            text-align-last: center; 
+            text-justify: inter-word;
+            font-size: 1rem;
+            color: #444;
+            margin-top: 1.5rem;
+            font-style: italic;
+        }
+
+        /* new */
+        .rec-cards-container {
+            display: flex;
+            justify-content: center; /* Centers 1 item, or centers the group of 2 */
+            gap: 1.5rem; /* Space between the two cards */
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        /* new */
+        .rec-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex: 1 1 250px; /* Don't grow too wide, start at 300px */
+            text-align: left;
+            border-left: 5px solid #34a853;
+            max-width: 350px;
+        }
+
+        /* Mobile Responsive: Stack them on small screens */
+        @media (max-width: 900px) {
+            .result-box {
+                flex-direction: column-reverse; /* Put map on bottom or top as you prefer */
+            }
+            .map-container {
+                width: 100%;
+                height: 300px;
+                margin-right: 0;
+            }
+            #map {
+                height: 400px;
+            }
+        }
+        
+        /* Hide the text instructions from the routing plugin (optional) */
+        .leaflet-routing-container {
+            display: none;
+        }
+
+        /* Your grid fix from before */
+        .result-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            text-align: left;
+            gap: 1.5rem;
+        }
+
+        /* Custom Directions Box (Floating on the map) */
+        .directions-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            max-height: 450px;
+            background: white;
+            z-index: 1000; /* Sit on top of map */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            overflow-y: auto; /* Scrollable if long */
+            font-size: 0.9rem;
+            font-family: sans-serif;
+        }
+        .directions-box h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .step-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f9f9f9;
+            padding-bottom: 5px;
+        }
+        .step-icon {
+            font-weight: bold;
+            color: #2d8a64;
+            min-width: 20px;
+        }
+        
+        .map-section {
+            position: relative; 
+        }
+
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
 
         /* Mobile adjustment */
         @media (max-width: 600px) {
@@ -271,6 +432,10 @@
                 width: 80%;
             }
         }
+
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
         
         /* Guide Page */
 
@@ -332,6 +497,10 @@
             color: #888;
             border: 2px solid #000;
         }
+
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
 
         /* Footer */
         .footer {

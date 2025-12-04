@@ -25,14 +25,11 @@
                     <option value="" disabled selected>Select your vehicle</option>
                     <option value="Mobil (Bensin)">Mobil (Bensin)</option>
                     <option value="Mobil (Diesel)">Mobil (Diesel)</option>
-                    <option value="Mobil (Elektrik)">Mobil (Elektrik)</option>
+                    <option value="Mobil (Listrik)">Mobil (Listrik)</option>
                     <option value="Mobil (Hybrid)">Mobil (Hybrid)</option>
                     <option value="Sepeda Motor (Bensin)">Sepeda Motor (Bensin)</option>
                     <option value="Sepeda Motor (Listrik)">Sepeda Motor (Listrik)</option>
                     <option value="Sepeda">Sepeda</option>
-                    <option value="Kereta Api">Kereta Api</option>
-                    <option value="Kereta Listrik">Kereta Listrik</option>
-                    <option value="Bus">Bus</option>
                 </select>
             </div>
 

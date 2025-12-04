@@ -30,7 +30,7 @@ class EmissionSeeder extends Seeder
 
             DB::table('emission')->insert([
                 'vehicle_type' => $row[0],
-                'avarage_emission' => $row[1],
+                'average_emission' => $row[1],
             ]);
         }
 

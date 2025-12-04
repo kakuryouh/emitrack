@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('emission', function (Blueprint $table) {
             $table->id();
             $table->string('vehicle_type');
-            $table->float('avarage_emission', 5, 2);
+            $table->float('average_emission', 5, 2);
             $table->timestamps();
         });
     }
