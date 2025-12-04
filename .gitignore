@@ -18,6 +18,12 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/public/Leaflet/*
+!/public/Leaflet/leaflet.zip
+/public/Leaflet-encoded/*
+!/public/Leaflet-encoded/Leaflet-encoded.zip
+/public/leaflet-routing-machine/*
+!/public/leaflet-routing-machine/leaflet-routing-machine-3.2.12.zip
 /vendor
 Homestead.json
 Homestead.yaml
