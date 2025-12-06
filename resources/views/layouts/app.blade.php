@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EmiTrack</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     {{-- Basic Styling --}}
     <style>
         body {
@@ -24,13 +25,23 @@
             border-bottom: 1px 50% solid #292929;
         }
         .navbar .logo {
+            display: flex;
+            align-items: center; /* Vertically center the text with the image */
+            gap: 10px;           /* Adds space between image and text */
             font-size: 1.5rem;
             font-weight: bold;
             color: #2d8a64;
             text-decoration: none;
             margin-right: 1rem;
         }
+
+        .navbar .logo img {
+            height: 40px; /* Adjust this to match your navbar height */
+            width: auto;  /* Maintains aspect ratio */
+        }
+
         .navbar nav a {
+            
             text-decoration: none;
             color: #555;
             margin-left: 1.5rem;
@@ -39,6 +50,8 @@
         .navbar nav a:hover {
             color: #000;
         }
+
+
 
 /* ====================================================================================================================================================== */
 /* ====================================================================================================================================================== */
@@ -518,12 +531,13 @@
 
     {{-- Navigation Bar --}}
     <header class="navbar">
-        <a href="{{ url('/') }}" class="logo">EmiTrack</a>
+        {{-- <img src="favicon.png" alt="logo" class="logo::before"> --}}
+        <a href="{{ url('/') }}" class="logo"><img src="{{ asset('favicon.png') }}" alt="Logo">EmiTrack</a>
         <nav>
             
             <a href="{{ url('/') }}">Home</a>
 
-            <a href="{{ url('/calculate') }}">Calculate</a>
+            <a href="{{ url('/calculate') }}">Hitung</a>
 
             {{-- <a href="{{ url('/guide') }}">Guide</a> --}}
         </nav>

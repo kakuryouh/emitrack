@@ -3,9 +3,10 @@
 @section('content')
     {{-- 1. Banner Section --}}
     <div class="banner">
+        <h1>EMITRACK</h1>
         <h1>Calculate Your Carbon Footprint</h1>
         <p style="font-size: 1.1rem; margin-bottom: 2rem;">Understand the environmental impact of your travel.</p>
-        <a href="{{ url('/calculate') }}" class="btn">Start Calculating</a>
+        <a href="{{ url('/calculate') }}" class="btn">Hitung Sekarang</a>
     </div>
 
     <div class="container-info-button">
