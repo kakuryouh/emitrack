@@ -33,11 +33,13 @@
                 </select>
             </div>
 
-            @if (isset($error))
-                <span>{{ $error }}</span>
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    <span style="color: red">{{ $error }}</span>
+                @endforeach
             @endif
 
-            <div class="form-group">
+            <div class="form-group" style="margin-top: 10px">
                 <button type="submit" class="btn">Calculate</button>
             </div>
         </form>

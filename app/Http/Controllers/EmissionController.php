@@ -39,7 +39,8 @@ class EmissionController extends Controller
         $destData = getCoordinates($destinationName);
 
         if (!$originData || !$destData) {
-            return back()->with('error', 'Could not find one of the locations. Try adding the city name (e.g., "Binus Alam Sutera, Tangerang").');
+            // dd($destData);
+            return back()->withErrors(['error' => 'Could not find one of the locations. Try adding the city name (e.g., "Binus Alam Sutera, Tangerang").']);
         }
 
         $originLat = (float)$originData['lat'];
@@ -61,7 +62,7 @@ class EmissionController extends Controller
             $profile = "cycling-regular"; 
         } 
         else {
-            return back()->with('error', 'Please select a valid vehicle type.');
+            return back()->withErrors(['error' => 'Please select a valid vehicle type.']);
         }
 
         $requestBody = [
@@ -96,7 +97,7 @@ class EmissionController extends Controller
             $Recommendation = [];
             $ReccomendationMsg = "";
 
-            if($distanceKm < 3 && !strcmp($vehicle, "Sepeda")){
+            if($distanceKm < 3 && $vehicle !== "Sepeda"){
 
                 $Recommendation[] = [
                     'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Jalan Kaki')->vehicle_type,
@@ -112,7 +113,7 @@ class EmissionController extends Controller
 
                 $ReccomendationMsg = "Untuk perjalanan pendek disarankan untuk berjalan kaki atau menggunakan sepeda. berjalan kaki atau bersepeda dapat membantu meningktakan kesehatan tubuh dan jauh lebih sehat dibanding $vehicle.";
 
-            }elseif($distanceKm < 3 && strcmp($vehicle, "Sepeda")){
+            }elseif($distanceKm < 3 && $vehicle === "Sepeda"){
                 $Recommendation[] = [
                     'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Jalan Kaki')->vehicle_type,
                     'emission' => $EmissionsList->firstWhere('vehicle_type', 'Jalan Kaki')->average_emission,
@@ -137,7 +138,7 @@ class EmissionController extends Controller
                 $ReccomendationMsg = "Jika waktu tempuh tidak menjadi masalah, bersepeda merupakan alternatif paling bagus untuk perjalanan ini dibanding $vehicle. Tetapi jika waktu tempuh penting maka, sepeda motor listrik juga bisa menjadi alternatif untuk perjalanan ini.";
 
             }elseif($distanceKm >= 3 && $distanceKm < 8 && !str_contains($vehicle, "Mobil")){
-                if (strcmp($vehicle, "Sepeda Motor (Listrik)")){
+                if ($vehicle === "Sepeda Motor (Listrik)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda')->average_emission,
@@ -146,7 +147,7 @@ class EmissionController extends Controller
 
                     $ReccomendationMsg = "Jika waktu tempuh tidak menjadi masalah, sepeda dapat menjadi alternatif baik dibanding $vehicle. waktu perjalanan akan lebih lama tetapi bersepeda juga dapat meningkatkan kesehatan tubuh.";
 
-                }elseif (strcmp($vehicle, "Sepeda Motor (Bensin)")){
+                }elseif ($vehicle === "Sepeda Motor (Bensin)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda')->average_emission,
@@ -164,7 +165,7 @@ class EmissionController extends Controller
                 }
 
             }elseif($distanceKm >= 8 && $distanceKm < 15 && str_contains($vehicle, "Mobil")){
-                if (strcmp($vehicle, "Mobil (Listrik)")){
+                if ($vehicle === "Mobil (Listrik)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
@@ -197,7 +198,7 @@ class EmissionController extends Controller
                 }
 
             }elseif($distanceKm >= 8 && $distanceKm < 15 && !str_contains($vehicle, "Mobil")){
-                if (strcmp($vehicle, "Sepeda Motor (Listrik)")){
+                if ($vehicle === "Sepeda Motor (Listrik)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
@@ -206,7 +207,7 @@ class EmissionController extends Controller
 
                     $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak menengah.";
 
-                }elseif (strcmp($vehicle, "Sepeda Motor (Bensin)")){
+                }elseif ($vehicle === "Sepeda Motor (Bensin)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
@@ -223,7 +224,7 @@ class EmissionController extends Controller
                 }
 
             }elseif($distanceKm >= 15 && !str_contains($vehicle, "Mobil")){
-                if (strcmp($vehicle, "Sepeda Motor (Listrik)")){
+                if ($vehicle === "Sepeda Motor (Listrik)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
@@ -232,7 +233,7 @@ class EmissionController extends Controller
 
                     $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak jauh seperti ini.";
 
-                }elseif (strcmp($vehicle, "Sepeda Motor (Bensin)")){
+                }elseif ($vehicle === "Sepeda Motor (Bensin)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
@@ -240,24 +241,30 @@ class EmissionController extends Controller
                     ];
 
                     $Recommendation[] = [
-                        'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Mobil (Listrik)')->vehicle_type,
-                        'emission' => $EmissionsList->firstWhere('vehicle_type', 'Mobil (Listrik)')->average_emission,
-                        'emissionTotal' => $distanceKm*($EmissionsList->firstWhere('vehicle_type', 'Mobil (Listrik)')->average_emission),
+                        'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->vehicle_type,
+                        'emission' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->average_emission,
+                        'emissionTotal' => $distanceKm*($EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->average_emission),
                     ];
 
-                    $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak jauh seperti ini. Mobil listrik juga bisa menjadi alternatif $vehicle yang lebih ramah lingkungan.";
+                    $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak jauh seperti ini. Sepeda Motor listrik juga bisa menjadi alternatif $vehicle yang lebih ramah lingkungan.";
 
                 }
 
             }elseif($distanceKm >= 15 && str_contains($vehicle, "Mobil")){
-                if (strcmp($vehicle, "Mobil (Listrik)") === 0){
+                if ($vehicle === "Mobil (Listrik)"){
                     $Recommendation[] = [
                         'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->vehicle_type,
                         'emission' => $EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission,
                         'emissionTotal' => $distanceKm*($EmissionsList->firstWhere('vehicle_type', 'Kereta Listrik')->average_emission),
                     ];
 
-                    $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak menengah.";
+                    $Recommendation[] = [
+                        'vehicle_type' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->vehicle_type,
+                        'emission' => $EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->average_emission,
+                        'emissionTotal' => $distanceKm*($EmissionsList->firstWhere('vehicle_type', 'Sepeda Motor (Listrik)')->average_emission),
+                    ];
+
+                    $ReccomendationMsg = "Jika ada kereta yang memiliki destinasi yang sama, kereta listrik adalah pilihan yang bagus untuk perjalanan jarak jauh seperti ini. Sepeda Motor listrik juga bisa menjadi alternatif $vehicle yang lebih ramah lingkungan.";
 
                 }else{
                     $Recommendation[] = [
@@ -277,45 +284,62 @@ class EmissionController extends Controller
                 }
             }
 
-            $comparisonList = [];
+            if($Recommendation){
+                $comparisonList = [];
 
-            // Add the User's Main Choice
-            $comparisonList['main'] = round(($MainEmission*$distanceKm), 2);
+                $comparisonList['main'] = round(($MainEmission*$distanceKm), 2);
 
-            // Add the Recommendations
-            // Note: We need to calculate the TOTAL for recommendations to compare fairly.
-            // Total = Rate * Distance
-            foreach ($Recommendation as $index => $rec) {
-                $comparisonList["rec_$index"] = $rec['emissionTotal'];
+                foreach ($Recommendation as $index => $rec) {
+                    $comparisonList["rec_$index"] = $rec['emissionTotal'];
+                }
+
+                $minValue = min($comparisonList);
+                $maxValue = max($comparisonList);
+
+                // Assign Color for each emission
+                $assignColor = function($value) use ($minValue, $maxValue) {
+
+                    if ($value == $minValue) return '#34a853'; 
+
+                    if ($value == $maxValue) return '#ea4335';
+
+                    return '#f9ab00';
+                };
+
+                // User vehicle choice color
+                $mainColor = $assignColor($comparisonList['main']);
+
+                foreach ($Recommendation as $index => &$rec) {
+                    $recTotal = $comparisonList["rec_$index"];
+                    $rec['color'] = $assignColor($recTotal);
+                }
+
+                unset($rec);
+
+                return view('result', [
+                    'origin' => [
+                        'name' => $originData['display_name'],
+                        'lat' => $originLat,
+                        'lng' => $originLng
+                    ],
+                    'destination' => [
+                        'name' => $destData['display_name'],
+                        'lat' => $destLat,
+                        'lng' => $destLng
+                    ],
+                    'distance' => $distanceKm,
+                    'duration' => gmdate("H \h i \m", $durationSeconds),
+                    'emissionRate' => $MainEmission,
+                    'totalEmission' => round(($MainEmission*$distanceKm), 2),
+                    'vehicleModel' => $request->input('vehicle_model'),
+                    'mainColor' => $mainColor,
+                    'recommendations' => $Recommendation,
+                    'recommendationMsg' => $ReccomendationMsg,
+
+                    'routeGeometry' => $geometry,
+                    'routeSteps' => $steps
+                ]);
             }
-
-            // 2. Find the Min and Max values in this specific trip
-            $minValue = min($comparisonList);
-            $maxValue = max($comparisonList);
-
-            // 3. Define a closure (helper) to pick the color based on rank
-            $assignColor = function($value) use ($minValue, $maxValue) {
-                // If it's the absolute lowest, it's Green
-                if ($value == $minValue) return '#34a853'; 
-                // If it's the absolute highest, it's Red
-                if ($value == $maxValue) return '#ea4335';
-                // Otherwise, it's in the middle (Yellow)
-                return '#f9ab00';
-            };
-
-            // 4. Assign the colors back to the variables
-            
-            // Set Main Result Color
-            $mainColor = $assignColor($comparisonList['main']);
-
-            // Set Colors for each Recommendation
-            foreach ($Recommendation as $index => &$rec) {
-                $recTotal = $comparisonList["rec_$index"];
-                $rec['color'] = $assignColor($recTotal);
-            }
-            unset($rec); // Break the reference
-
-            
 
             return view('result', [
                 'origin' => [
@@ -333,7 +357,7 @@ class EmissionController extends Controller
                 'emissionRate' => $MainEmission,
                 'totalEmission' => round(($MainEmission*$distanceKm), 2),
                 'vehicleModel' => $request->input('vehicle_model'),
-                'mainColor' => $mainColor,
+                'mainColor' => '#34a853',
                 'recommendations' => $Recommendation,
                 'recommendationMsg' => $ReccomendationMsg,
 
@@ -342,7 +366,7 @@ class EmissionController extends Controller
             ]);
 
         } else {
-            return back()->with('error', 'Route could not be calculated between these points.');
+            return back()->withErrors(['error' => 'Route could not be calculated between these points.']);
         }
     }
 }
