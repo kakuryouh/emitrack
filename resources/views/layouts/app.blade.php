@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EmiTrack</title>
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    {{-- Basic Styling --}}
+
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -14,6 +14,7 @@
             background-color: #f3f3f3;
             color: #333;
         }
+
         /* Navigation */
         .navbar {
             background-color: #fff;
@@ -26,8 +27,8 @@
         }
         .navbar .logo {
             display: flex;
-            align-items: center; /* Vertically center the text with the image */
-            gap: 10px;           /* Adds space between image and text */
+            align-items: center;
+            gap: 10px;
             font-size: 1.5rem;
             font-weight: bold;
             color: #2d8a64;
@@ -36,8 +37,8 @@
         }
 
         .navbar .logo img {
-            height: 40px; /* Adjust this to match your navbar height */
-            width: auto;  /* Maintains aspect ratio */
+            height: 40px;
+            width: auto;
         }
 
         .navbar nav a {
@@ -49,6 +50,17 @@
         }
         .navbar nav a:hover {
             color: #000;
+        }
+
+        .disclaimer {
+            text-align: center;
+            text-align-last: center; 
+            text-justify: inter-word;
+            font-size: 1rem;
+            color: #000000;
+            opacity: 0.5;
+            margin-top: 1rem;
+            font-style: normal;
         }
 
 
@@ -321,7 +333,6 @@
         /* new */
         .rec-message {
             text-align: center;
-            /* "Centered in the middle justified" logic */
             text-align-last: center; 
             text-justify: inter-word;
             font-size: 1rem;
@@ -362,7 +373,7 @@
                 margin-right: 0;
             }
             #map {
-                height: 400px;
+                height: 300px;
             }
         }
         
@@ -515,6 +526,239 @@
 /* ====================================================================================================================================================== */
 /* ====================================================================================================================================================== */
 
+        /* Auth */
+        /* Auth & Profile Layouts */
+        .auth-container {
+            background-color: #f5f5f5; /* Light gray background */
+            min-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: white;
+            width: 100%;
+            max-width: 450px; /* Standard width for login/register */
+            padding: 3rem;
+            border-radius: 25px; /* Large rounded corners */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+
+        .wide-card {
+            max-width: 800px; /* Wider for Profile/History */
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #000;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #999;
+            border-radius: 6px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Fix width issues */
+        }
+
+        /* Password Eye Icon */
+        .password-wrapper {
+            position: relative;
+        }
+        .eye-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            opacity: 0.6;
+        }
+
+        /* Buttons */
+        .button-group {
+            text-align: center;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-green {
+            background-color: #00C853; /* Bright Green */
+            color: white;
+            padding: 0.8rem 3rem;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-green:hover { background-color: #009624; }
+
+        .btn-outline {
+            background-color: white;
+            color: #333;
+            padding: 0.6rem 2rem;
+            border-radius: 25px;
+            border: 1px solid #333;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        .btn-outline:hover { background-color: #f9f9f9; }
+
+        .btn-red {
+            background-color: #FF0000;
+            color: white;
+            padding: 0.6rem 2rem;
+            border-radius: 25px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .full-btn {
+            width: 100%;
+            max-width: 250px;
+            min-width: 200px;
+            text-align: center;
+            display: block;
+        }
+
+        .or-divider {
+            font-weight: bold;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        /* Profile Specific */
+        .profile-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        .profile-actions .center-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stacked-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+
+        .stacked-actions-settings {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+
+        /* Settings Section */
+        .settings-section {
+            margin-top: 3rem;       /* Push it down from the form */
+            padding-top: 2rem;      /* Internal spacing */
+            border-top: 2px solid #eee; /* The separator line */
+            text-align: left;
+            align-items: left;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* History Specific */
+        .history-container {
+            background-color: #f5f5f5; /* Light gray background */
+            min-height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .history-card {
+            background: white;
+            width: 100%;
+            max-width: 1000px;
+            padding: 3rem;
+            border-radius: 25px; /* Large rounded corners */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #000;
+        }
+        .back-btn {
+            font-size: 1.5rem;
+            text-decoration: none;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 50%;
+            width: 35px; height: 35px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .history-table {
+            width: 100%;
+            min-height: 300px;
+            border-collapse: collapse;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+        }
+        .history-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        .icon-btn {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 5px;
+            border-radius: 4px;
+            margin-left: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+/* ====================================================================================================================================================== */
+
         /* Footer */
         .footer {
             text-align: center;
@@ -526,6 +770,18 @@
         }
 
     </style>
+
+    <script>
+    function togglePassword(fieldId) {
+        var input = document.getElementById(fieldId);
+        if (input.type === "password") {
+            input.type = "text";
+        } else {
+            input.type = "password";
+        }
+    }
+    </script>
+
 </head>
 <body>
 
@@ -538,8 +794,27 @@
             <a href="{{ url('/') }}">Home</a>
 
             <a href="{{ url('/calculate') }}">Hitung</a>
+            
 
-            {{-- <a href="{{ url('/guide') }}">Guide</a> --}}
+            @guest
+
+            <a href="{{ url('/register') }}">register</a>
+
+            <a href="{{ url('/login') }}">login</a>
+
+            @endguest
+
+
+
+            @auth
+
+            <a href="{{ route('history.view') }}">history</a>
+            
+            <a href="{{ url('/profile') }}">Profile</a>
+
+            @endauth
+
+
         </nav>
     </header>
 

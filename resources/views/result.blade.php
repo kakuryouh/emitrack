@@ -99,6 +99,8 @@
             </div>
         </div>
 
+        <div class="disclaimer">The calculation uses total average emission, real emission value may vary. These results may not be completely accurate and shouldn't be taken as the final result.</div>
+
         <div class="container-info-button-result">
             <a href="{{ url('/calculate') }}" class="btn-info">Hitung Kembali</a>
         </div>

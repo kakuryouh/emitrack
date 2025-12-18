@@ -33,6 +33,8 @@
                 </select>
             </div>
 
+            <input type="hidden" name="createFlag" value="true">
+
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     <span style="color: red">{{ $error }}</span>
@@ -43,6 +45,7 @@
                 <button type="submit" class="btn">Calculate</button>
             </div>
         </form>
-    </div>    
+        <div class="disclaimer">The calculation uses total average emission, real emission value may vary. These results may not be completely accurate and shouldn't be taken as the final answer.</div>
+    </div>
 </div>
 @endsection

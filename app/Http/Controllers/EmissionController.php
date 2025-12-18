@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\History;
 
 class EmissionController extends Controller
 {
@@ -14,6 +16,7 @@ class EmissionController extends Controller
     }
 
     public function calculate(Request $request){
+        // dd($request);
         $apiKey = env('ORS_API_KEY');
         $baseUrl = "https://api.openrouteservice.org/v2/directions/";
         $profile = "driving-car";
@@ -39,7 +42,6 @@ class EmissionController extends Controller
         $destData = getCoordinates($destinationName);
 
         if (!$originData || !$destData) {
-            // dd($destData);
             return back()->withErrors(['error' => 'Could not find one of the locations. Try adding the city name (e.g., "Binus Alam Sutera, Tangerang").']);
         }
 
@@ -88,12 +90,29 @@ class EmissionController extends Controller
             $geometry = $routeData['routes'][0]['geometry'];
             $steps = $routeData['routes'][0]['segments'][0]['steps'];
             $summary = $routeData['routes'][0]['summary'];
+            
             $distanceKm = round($summary['distance'] / 1000, 2);
             $durationSeconds = $summary['duration'];
-
-            $EmissionsList = DB::table('emission')->select('vehicle_type', 'average_emission')->get();                      
+            
+            // Emission data
+            $EmissionsList = DB::table('emission')->select('vehicle_type', 'average_emission')->get();
             $MainEmission = $EmissionsList->firstWhere('vehicle_type', $vehicle)->average_emission;
+            $totalEmission = round(($MainEmission*$distanceKm), 2);
 
+            // Add to history if user is logged in
+            if(Auth::check() && $request->createFlag == "true"){
+                $user_id = Auth::user()->id;
+
+                $history = History::create([
+                'user_id' => $user_id,
+                'origin' => $originName,
+                'destination' => $destinationName,
+                'total_emission' => $totalEmission,
+                'transportation_mode' => $vehicle,
+                ]);
+            }
+
+            // Reccomendation data
             $Recommendation = [];
             $ReccomendationMsg = "";
 
