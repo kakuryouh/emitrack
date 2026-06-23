@@ -56,9 +56,9 @@
             <div class="button-group">
                 <button type="submit" class="btn-green">Register</button>
                 <span class="or-divider">Or</span>
+                <a href="{{ route('login') }}" class="btn-outline">Login</a>                
             </div>
         </form>
-        <a href="{{ route('login') }}" class="btn-outline">Login</a>
     </div>
 </div>
 @endsection

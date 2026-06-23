@@ -2,7 +2,6 @@
 
 @section('content')
 
-{{-- Add Leaflet CSS and JS locally for this page --}}
     <link rel="stylesheet" href="Leaflet\dist\leaflet.css" />
     <link rel="stylesheet" href="leaflet-routing-machine\dist\leaflet-routing-machine.css" />
 
@@ -12,21 +11,6 @@
                 
             <div class="map-container">
                 <div id="map"></div>
-
-                {{-- <div class="directions-box">
-                    <h3>Route Directions</h3>
-                    @foreach($routeSteps as $index => $step)
-                        <div class="step-item">
-                            <div class="step-icon">{{ $index + 1 }}.</div>
-                            <div class="step-text">
-                                {{ $step['instruction'] }}
-                                <div style="color: #888; font-size: 0.8em;">
-                                    {{ round($step['distance']) }}m
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div> --}}
             </div>
 
             <div class="data-container">
@@ -56,6 +40,14 @@
                     <div>
                         <div class="label">Average Emission Rate:</div>
                         <div class="value">{{ $emissionRate ?? '--' }} g CO2/km</div>
+                    </div>
+                    <div>
+                        <div class="label">Fuel Type:</div>
+                        <div class="value">{{ $fuel ?? '--' }}</div>
+                    </div>
+                    <div>
+                        <div class="label">Fuel Efficiency:</div>
+                        <div class="value">{{ $efficiency ?? '--' }} L/100KM</div>
                     </div>
                     <div>
                         <div class="label">Estimated travel time:</div>
@@ -107,17 +99,21 @@
 
         {{-- Recommendations Section --}}
         <div class="recommendations" style="max-width: 800px; margin: 2rem auto;">
+            <br><br>
             <h2>Cara Menurunkan Emisi Anda</h2>
             <p>Berikut adalah beberapa cara untuk mengurangi jejak karbon Anda:</p>
+            <br>
             <ul>
                 <li>
                     <strong>Gunakan Transportasi Umum</strong> Bus dan kereta api sering kali memiliki jejak karbon yang lebih rendah per penumpang.
                     <a href="{{ url('/guide') }}">[Aplikasi TransJakarta]</a>
                 </li>
+                <br>
                 <li>
                     <strong>Coba Melakukan <i>Carbon Offsetting</i>:</strong> Anda dapat mengimbangi emisi Anda dengan mendukung / mendonasi proyek yang mengurangi gas rumah kaca.
                     <a href="https://lindungihutan.com/blog/5-proyek-carbon-offsetting-di-indonesia">[Proyek Carbon Offsetting]</a>
                 </li>
+                <br>
                 <li>
                     <strong>Kurangi Penggunaan Kendaraan Bermotor:</strong> Untuk jarak pendek, berjalan kaki atau bersepeda tidak menghasilkan emisi.
                 </li>
@@ -147,7 +143,7 @@
         }).addTo(map);
 
         var polyline = L.Polyline.fromEncoded(routeCoords, {
-            color: '#34a853', // Green color
+            color: '#34a853',
             weight: 5,
             opacity: 0.8
         }).addTo(map);

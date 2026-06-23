@@ -7,18 +7,79 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\History;
+use App\Models\Fuel;
+use App\Models\PublicTransport;
+use Carbon\Traits\Difference;
+use App\Models\TravelLog;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
-class EmissionController extends Controller
+class CalculateController extends Controller
 {
 
-    public function show(){
+    public function viewCalculator(){
         return view('calculate');
+    }
+
+    public function viewCompare(){
+        return view('cost_compare');
+    }
+
+    public function getCoordinates($query){
+        $response = Http::withHeaders([
+            'User-Agent' => 'EmiTrackGeoCoder'
+        ])->get('https://nominatim.openstreetmap.org/search', [
+            'q' => $query,
+            'format' => 'json',
+            'limit' => 1,
+            'countrycodes' => 'id' 
+        ]);
+        return $response->json()[0] ?? null;
+    }
+
+    public function getRoute($originLat, $originLng, $destLat, $destLng, $profile, $options){
+        $apiKey = env('ORS_API_KEY');
+        $baseUrl = "https://api.openrouteservice.org/v2/directions/";
+
+        $requestBody = [
+            'coordinates' => [
+                [$originLng, $originLat],
+                [$destLng, $destLat],
+            ],
+        ];
+
+        if (!empty($options)) {
+            $requestBody['options'] = $options;
+        }
+
+        $response = Http::withHeaders([
+            'Authorization' => $apiKey,
+            'Content-Type'  => 'application/json',
+        ])->post($baseUrl . $profile, $requestBody);
+
+        return $response->json();
+    }
+
+    public function calculateEmission($distance, $fuelname, $fuelefficiency, $oxidationfactor, $costFlag = false){
+        $fuel = DB::table('fuels')->where('fuel_name', $fuelname)->first();
+
+        $activity = $distance/$fuelefficiency;
+        $volumetricEmissionFactor = $fuel->density * $fuel->ncv * $fuel->carbon_emission_factor * $oxidationfactor;
+
+        $emission = round($activity * $volumetricEmissionFactor, 3);
+
+        if($costFlag){
+
+            $cost = $fuel->price * $activity;
+
+            return [$emission, $cost];
+
+        }
+
+        return $emission;
     }
 
     public function calculate(Request $request){
         // dd($request);
-        $apiKey = env('ORS_API_KEY');
-        $baseUrl = "https://api.openrouteservice.org/v2/directions/";
         $profile = "driving-car";
         $options = [];
         
@@ -26,20 +87,8 @@ class EmissionController extends Controller
         $destinationName = $request->input('destination');
         $vehicle = $request->input('vehicle_model');
 
-        function getCoordinates($query) {
-            $response = Http::withHeaders([
-                'User-Agent' => 'EmiTrackGeoCoder'
-            ])->get('https://nominatim.openstreetmap.org/search', [
-                'q' => $query,
-                'format' => 'json',
-                'limit' => 1,
-                'countrycodes' => 'id' 
-            ]);
-            return $response->json()[0] ?? null;
-        }
-
-        $originData = getCoordinates($originName);
-        $destData = getCoordinates($destinationName);
+        $originData = $this->getCoordinates($originName);
+        $destData = $this->getCoordinates($destinationName);
 
         if (!$originData || !$destData) {
             return back()->withErrors(['error' => 'Could not find one of the locations. Try adding the city name (e.g., "Binus Alam Sutera, Tangerang").']);
@@ -67,23 +116,11 @@ class EmissionController extends Controller
             return back()->withErrors(['error' => 'Please select a valid vehicle type.']);
         }
 
-        $requestBody = [
-            'coordinates' => [
-                [$originLng, $originLat],
-                [$destLng, $destLat],
-            ],
-        ];
-
         if (!empty($options)) {
             $requestBody['options'] = $options;
         }
 
-        $response = Http::withHeaders([
-            'Authorization' => $apiKey,
-            'Content-Type'  => 'application/json',
-        ])->post($baseUrl . $profile, $requestBody);
-
-        $routeData = $response->json();
+        $routeData = $this->getRoute($originLat, $originLng, $destLat, $destLng, $profile, $options);
 
         if (isset($routeData['routes'][0]['summary'])) {
             // Geometry for routes
@@ -97,20 +134,8 @@ class EmissionController extends Controller
             // Emission data
             $EmissionsList = DB::table('emission')->select('vehicle_type', 'average_emission')->get();
             $MainEmission = $EmissionsList->firstWhere('vehicle_type', $vehicle)->average_emission;
-            $totalEmission = round(($MainEmission*$distanceKm), 2);
 
-            // Add to history if user is logged in
-            if(Auth::check() && $request->createFlag == "true"){
-                $user_id = Auth::user()->id;
-
-                $history = History::create([
-                'user_id' => $user_id,
-                'origin' => $originName,
-                'destination' => $destinationName,
-                'total_emission' => $totalEmission,
-                'transportation_mode' => $vehicle,
-                ]);
-            }
+            $totalEmission = $this->calculateEmission($distanceKm, $request->fuel, $request->efficiency, 0.99);
 
             // Reccomendation data
             $Recommendation = [];
@@ -348,9 +373,11 @@ class EmissionController extends Controller
                     ],
                     'distance' => $distanceKm,
                     'duration' => gmdate("H \h i \m", $durationSeconds),
-                    'emissionRate' => $MainEmission,
-                    'totalEmission' => round(($MainEmission*$distanceKm), 2),
+                    'emissionRate' => round($totalEmission/$distanceKm, 3),
+                    'totalEmission' => $totalEmission,
                     'vehicleModel' => $request->input('vehicle_model'),
+                    'fuel' => $request->input('fuel'),
+                    'efficiency' => $request->input('efficiency'),
                     'mainColor' => $mainColor,
                     'recommendations' => $Recommendation,
                     'recommendationMsg' => $ReccomendationMsg,
@@ -373,8 +400,8 @@ class EmissionController extends Controller
                 ],
                 'distance' => $distanceKm,
                 'duration' => gmdate("H \h i \m", $durationSeconds),
-                'emissionRate' => $MainEmission,
-                'totalEmission' => round(($MainEmission*$distanceKm), 2),
+                'emissionRate' => round($totalEmission/$distanceKm, 3),
+                'totalEmission' => $totalEmission,
                 'vehicleModel' => $request->input('vehicle_model'),
                 'mainColor' => '#34a853',
                 'recommendations' => $Recommendation,
@@ -387,5 +414,186 @@ class EmissionController extends Controller
         } else {
             return back()->withErrors(['error' => 'Route could not be calculated between these points.']);
         }
+    }
+
+    public function calculatePublicTransport($type, $distance){
+        $transport = DB::table('publictransports')->where('name', $type)->first();
+
+        $publicEmission = round($transport->emission_factor_pkm * $distance, 3);
+        $publicCost = 0;
+        
+        if($transport->name == "MRT"){
+            $publicCost = $transport->base_price + ($transport->price_increase * floor($distance/12));
+
+        }elseif($transport->name == "KRL"){
+
+            if($distance > 25){
+                $publicCost = $transport->base_price + ($transport->price_increase * floor(($distance-25)/10));
+
+            }else{
+                $publicCost = $transport->base_price;
+            }
+        }else{
+            $publicCost = $transport->base_price;
+        }
+
+        return [$publicEmission, $publicCost];
+    }
+
+    public function calculateOnlineRide($name, $distance){
+        $transport = DB::table('publictransports')->where('name', $name)->first();
+
+        $publicEmission = $this->calculateEmission($distance, "Pertamax", 55, 0.99);
+
+        $publicCost = $transport->base_price + ($transport->price_increase * floor($distance-3));
+
+        return [$publicEmission, $publicCost];
+    }
+
+    public function compare(Request $request)
+    {
+        // 1. Calculate Private Vehicle Cost
+        $privateDistance = $request->input('private_distance', 0);
+        $fuelName = $request->input('fuel');
+        $fuelEfficiency = $request->input('efficiency', 1);
+        $parkingToll = $request->input('parking_toll', 0);
+        
+        [$emission, $cost] = $this->calculateEmission($privateDistance, $fuelName, $fuelEfficiency, 0.99, true);
+
+        // 2. Calculate Public Transport Chain Cost
+        $publicLegs = $request->input('public_legs', []);
+        $publicEmission = 0;
+        $publicCost = 0;
+        $publicBreakdown = [];
+
+        foreach ($publicLegs as $leg) {
+            if ($leg['type'] === 'Grab Motor' || $leg['type'] === 'Grab Mobil' || $leg['type'] === 'Gojek Motor' || $leg['type'] === 'Gojek Mobil') {
+                $tempCost = 0;
+                $tempEmission = 0;
+
+                [$tempEmission, $tempCost] = $this->calculateOnlineRide($leg['type'], $leg['distance']);
+
+                $publicEmission += $tempEmission;
+                $publicCost += $tempCost;
+
+                $publicBreakdown[] = ucfirst($leg['type']) . ": Rp " . number_format($tempCost);
+            } 
+            else{
+
+                $tempCost = 0;
+                $tempEmission = 0;
+
+                [$tempEmission, $tempCost] = $this->calculatePublicTransport($leg['type'], $leg['distance']);
+
+                $publicEmission += $tempEmission;
+                $publicCost += $tempCost;
+
+                $publicBreakdown[] = ucfirst($leg['type']) . ": Rp " . number_format($tempCost);
+            }
+        }
+
+        // 3. Calculate Difference
+        $difference = abs($cost - $publicCost);
+        $cheaperOption = $cost < $publicCost ? 'Private Vehicle' : 'Public Transport';
+
+        // 4. Return JSON if it's an AJAX request
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'privateCost' => number_format($cost),
+                'publicCost' => number_format($publicCost),
+                'difference' => number_format($difference),
+                'cheaperOption' => $cheaperOption,
+                'publicBreakdown' => implode('  ➔  ', $publicBreakdown)
+            ]);
+        }
+
+        // Fallback for normal reloads (just in case)
+        return view('cost_compare', [
+            'privateCost' => $cost,
+            'publicCost' => $publicCost,
+            'difference' => $difference,
+            'cheaperOption' => $cheaperOption,
+            'publicBreakdown' => $publicBreakdown
+        ]);
+    }
+
+    public function addTravel(Request $request){
+        $user = Auth::user();
+        $transportation_type = $request->input('transport_type');
+        $log_date = $request->input('log_date');
+        $transport_type = $request->input('transport_type');
+
+
+        if($transportation_type == "private"){
+            $transport_mode = $request->input('vehicle_model');
+            $distance = $request->input('private_distance');
+            $fuelname = $request->input('fuel');
+            $fuel = DB::table('fuels')->where('fuel_name', $fuelname)->first();
+            $fuelefficiency = $request->input('efficiency');
+
+            [$emission, $cost] = $this->calculateEmission($distance, $fuelname, $fuelefficiency, 0.99, true);
+
+            $newtravel = new TravelLog();
+            $newtravel->user_id = $user->id;
+            $newtravel->fuel_id = $fuel->id;
+            $newtravel->log_date = $log_date;
+            $newtravel->transport_type = $transport_type;
+            $newtravel->transport_mode = $transport_mode;
+            $newtravel->origin = $request->input('origin') ?? null;
+            $newtravel->destination = $request->input('destination') ?? null;
+            $newtravel->distance_km = $distance;
+            $newtravel->emissions_g = $emission;
+            $newtravel->cost_rp = $cost;
+            $newtravel->money_saved_rp = 0;
+            $newtravel->save();
+
+        }else{
+            $publicLegs = $request->input('public_legs', []);
+            $publicEmission = 0;
+            $publicCost = 0;
+            $totalDistance = 0;
+
+            foreach ($publicLegs as $key => $leg) {
+                if (in_array($leg['type'], ['Grab Motor', 'Grab Mobil', 'Gojek Motor', 'Gojek Mobil'])) {
+                    [$tempEmission, $tempCost] = $this->calculateOnlineRide($leg['type'], $leg['distance']);
+                }
+                else{
+                    [$tempEmission, $tempCost] = $this->calculatePublicTransport($leg['type'], $leg['distance']);
+                }
+
+                $publicEmission += $tempEmission;
+                $publicCost += $tempCost;
+                $totalDistance += $leg['distance'];
+                $publicLegs[$key]['calculated_cost'] = $tempCost;
+                $publicLegs[$key]['emission'] = $tempEmission;
+            }
+
+            [$emission, $cost] = $this->calculateEmission($totalDistance, 'Pertamax', 10, 0.99, true);
+
+            $newtravel = new TravelLog();
+            $newtravel->user_id = $user->id;
+            $newtravel->log_date = $log_date;
+            $newtravel->transport_type = $transport_type;
+            $newtravel->distance_km = $totalDistance;
+            $newtravel->emissions_g = $publicEmission;
+            $newtravel->cost_rp = $publicCost;
+            $newtravel->money_saved_rp = $cost;
+            $newtravel->save();
+
+            foreach ($publicLegs as $leg) {
+                // Find the ID of the public transport/ride-hailing from your dictionary table
+                $transitDbRecord = DB::table('publictransports')->where('name', $leg['type'])->first();
+
+                // Using attach() to cleanly insert into the pivot table
+                $newtravel->publicTransports()->attach($transitDbRecord->id, [
+                    'leg_distance' => $leg['distance'],
+                    'leg_cost' => $leg['calculated_cost'],
+                    'emission' => $leg['emission']
+                ]);
+            }
+        }
+
+        return redirect('/dashboard');
     }
 }

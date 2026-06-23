@@ -49,4 +49,8 @@ class User extends Authenticatable
     public function histories(){
         return $this->hasMany(History::class, 'user_id');
     }
+
+    public function logs(){
+        return $this->hasMany(TravelLog::class, 'user_id');
+    }
 }

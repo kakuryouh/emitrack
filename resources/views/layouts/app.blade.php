@@ -86,8 +86,8 @@
             gap: 5px;
         }
         .container-calculate {
+            display: flex;
             background-color:  #e6f9f0;
-            height: 600px;
             margin: 2rem auto;
             padding: 0 1rem;
             align-content: center;
@@ -618,6 +618,7 @@
             font-weight: bold;
             text-decoration: none;
             font-size: 0.9rem;
+            min-width: 60px;
             display: inline-block;
         }
         .btn-outline:hover { background-color: #f9f9f9; }
@@ -794,13 +795,17 @@
             <a href="{{ url('/') }}">Home</a>
 
             <a href="{{ url('/calculate') }}">Hitung</a>
+
+            <a href="{{ url('/compare-cost') }}">Compare</a>
+
+            <a href="{{ url('/dashboard') }}">Dashboard</a>
             
 
             @guest
 
-            <a href="{{ url('/register') }}">register</a>
+            <a href="{{ url('/register') }}">Register</a>
 
-            <a href="{{ url('/login') }}">login</a>
+            <a href="{{ url('/login') }}">Login</a>
 
             @endguest
 
@@ -808,7 +813,7 @@
 
             @auth
 
-            <a href="{{ route('history.view') }}">history</a>
+            <a href="{{ route('logs.view') }}">History</a>
             
             <a href="{{ url('/profile') }}">Profile</a>
 

@@ -4,7 +4,6 @@
 <div class="auth-container">
     <div class="auth-card wide-card">
         
-        {{-- 1. Main Profile Update Form --}}
         <form method="POST" action="{{ route('profile.update') }}">
             @csrf
             @method('PUT')
@@ -35,14 +34,12 @@
                 </div>
             </div>
 
-            {{-- Stacked Save & Cancel Buttons --}}
             <div class="stacked-actions">
                 <button style="align-items: center" type="submit" class="btn-green full-btn">Save Changes</button>
                 <button style="align-items: center" onclick="{{ url('/') }}" class="btn-outline full-btn">Cancel</button>
             </div>
         </form>
 
-        {{-- 2. New Settings Section --}}
         <div class="settings-section">
             <h3>Settings</h3>
             
@@ -77,7 +74,6 @@
     }
 </script>
 
-{{-- Hidden form for delete action (standard Laravel practice) --}}
 <form id="delete-account-form" action="{{ route('profile.delete') }}" method="POST" style="display: none;">
     @csrf
     @method('DELETE')
